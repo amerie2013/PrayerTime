@@ -3,181 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIA 2026 Prayer Times</title>
+    <title>WIA Prayer Dashboard</title>
     <style>
         :root {
-            --primary-green: #2e7d32;
-            --light-gray: #f4f4f4;
-            --text-dark: #333;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-dark);
-            background-color: #fff;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
             padding: 20px;
         }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-        }
-        header {
+
+        .header {
             text-align: center;
-            border-bottom: 3px solid var(--primary-green);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 30px;
         }
-        h1 { color: var(--primary-green); margin: 0; }
-        .month-section { margin-bottom: 40px; overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 0.9em;
+
+        .date-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
         }
-        th {
-            background-color: var(--primary-green);
-            color: white;
-            padding: 12px;
+
+        .hijri-display {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prayer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prayer-card {
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .prayer-card.active {
+            border: 2px solid var(--accent-gold);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .prayer-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prayer-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .iqamah-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .time-group {
+            text-align: right;
+        }
+
+        .adhan-time {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .iqamah-time {
+            font-size: 0.9rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .footer-notes {
+            margin-top: 30px;
             text-align: center;
-        }
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        tr:nth-child(even) { background-color: var(--light-gray); }
-        .hijri-date { font-style: italic; color: #666; font-size: 0.8em; }
-        .note-box {
-            background: #fff3cd;
-            border-left: 5px solid #ffecb5;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            background: rgba(0,0,0,0.2);
             padding: 15px;
-            margin: 20px 0;
-            font-size: 0.9em;
+            border-radius: 12px;
         }
-        .prohibited {
-            font-size: 0.8em;
-            color: #d32f2f;
-            font-weight: bold;
-            text-align: center;
-            background: #ffebee;
+
+        .status-badge {
+            background: var(--accent-gold);
+            color: black;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>WIA 2026 Prayer Times</h1>
-        <p>1447/1448 Hijri Schedule</p>
-    </header>
+<div class="app-container">
+    <div class="header">
+        <div class="date-display" id="gregorianDate">Wednesday, February 25, 2026</div>
+        <div class="hijri-display">8 Ramadan 1447</div> </div>
 
-    <div class="note-box">
-        <strong>Important Notes:</strong>
-        <ul>
-            <li>Non-mandatory prayers are prohibited 15 minutes after Sunrise and 5 minutes before Dhuhr[cite: 78, 199].</li>
-            <li>In case of a Janazah, Dhuhr Iqamah is at 01:50 p.m. (DST) [cite: 510].</li>
-            <li>* Dates for Ramadan and Eid are estimated based on moon sightings[cite: 202, 511].</li>
-        </ul>
+    <div class="prayer-list">
+        <div class="prayer-card">
+            <div class="prayer-info">
+                <span class="prayer-name">Fajr</span>
+                <span class="iqamah-label">Starts at Adhan</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">5:48</div>
+                <div class="iqamah-time">Iqamah 6:08</div>
+            </div>
+        </div>
+
+        <div class="prayer-card">
+            <div class="prayer-info">
+                <span class="prayer-name">Sunrise</span>
+                <span class="iqamah-label">Prayer Prohibited</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">7:09</div> </div>
+        </div>
+
+        <div class="prayer-card active">
+            <div class="prayer-info">
+                <span class="prayer-name">Dhuhr <span class="status-badge">CURRENT</span></span>
+                <span class="iqamah-label">Main Hall</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">12:45</div> <div class="iqamah-time">Iqamah 1:00</div>
+            </div>
+        </div>
+
+        <div class="prayer-card">
+            <div class="prayer-info">
+                <span class="prayer-name">Asr</span>
+                <span class="iqamah-label">Afternoon Prayer</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">3:43</div> <div class="iqamah-time">Iqamah 4:30</div>
+            </div>
+        </div>
+
+        <div class="prayer-card">
+            <div class="prayer-info">
+                <span class="prayer-name">Maghrib</span>
+                <span class="iqamah-label">Iftar Time</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">6:10</div> <div class="iqamah-time">Iqamah 6:20</div>
+            </div>
+        </div>
+
+        <div class="prayer-card">
+            <div class="prayer-info">
+                <span class="prayer-name">Isha</span>
+                <span class="iqamah-label">Night Prayer</span>
+            </div>
+            <div class="time-group">
+                <div class="adhan-time">7:25</div> <div class="iqamah-time">Iqamah 7:45</div>
+            </div>
+        </div>
     </div>
 
-    <section class="month-section">
-        <h2>January 2026 (Rajab / Sha'ban)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date (Jan)</th>
-                    <th>Hijri</th>
-                    <th>Fajr (Adhan/Iqamah)</th>
-                    <th>Sunrise</th>
-                    <th>Dhuhr (Iqamah 1:00)</th>
-                    <th>Asr (Iqamah 3:45)</th>
-                    <th>Maghrib</th>
-                    <th>Isha (Iqamah 7:30)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1 (Thu)</td>
-                    <td class="hijri-date">12 Rajab</td>
-                    <td>6:29 / 6:45</td>
-                    <td>7:58</td>
-                    <td>12:36</td>
-                    <td>2:53</td>
-                    <td>5:14</td>
-                    <td>6:35</td>
-                </tr>
-                <tr>
-                    <td>2 (Fri)</td>
-                    <td class="hijri-date">13 Rajab</td>
-                    <td>6:29 / 6:45</td>
-                    <td>7:58</td>
-                    <td>12:36</td>
-                    <td>2:54</td>
-                    <td>5:15</td>
-                    <td>6:36</td>
-                </tr>
-                <tr>
-                    <td>31 (Sat)</td>
-                    <td class="hijri-date">12 Sha'ban</td>
-                    <td>6:18 / 6:45</td>
-                    <td>7:43</td>
-                    <td>12:46</td>
-                    <td>3:23</td>
-                    <td>5:48</td>
-                    <td>7:05</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <section class="month-section">
-        <h2>February 2026 (Sha'ban / Ramadan)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date (Feb)</th>
-                    <th>Hijri</th>
-                    <th>Fajr (Adhan/Iqamah)</th>
-                    <th>Sunrise</th>
-                    <th>Dhuhr (Iqamah 1:00)</th>
-                    <th>Asr (Iqamah 4:30)</th>
-                    <th>Maghrib</th>
-                    <th>Isha (Iqamah 7:30/7:45)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1 (Sun)</td>
-                    <td class="hijri-date">13 Sha'ban</td>
-                    <td>6:17 / 6:45</td>
-                    <td>7:41</td>
-                    <td>12:46</td>
-                    <td>3:24</td>
-                    <td>5:50</td>
-                    <td>7:07</td>
-                </tr>
-                <tr>
-                    <td>18 (Wed)</td>
-                    <td class="hijri-date">1 Ramadan*</td>
-                    <td>5:58 / 6:18</td>
-                    <td>7:17</td>
-                    <td>12:46</td>
-                    <td>3:44</td>
-                    <td>6:13</td>
-                    <td>7:28</td>
-                </tr>
-                </tbody>
-        </table>
-    </section>
-
-    <footer>
-        <p style="text-align: center; color: #777; font-size: 0.8em;">
-            Please monitor the WhatsApp channel for real-time updates and Janazah announcements[cite: 511].
-        </p>
-    </footer>
+    <div class="footer-notes">
+        Janazah Dhuhr Iqamah: 01:50 p.m. (DST) [cite: 510]<br>
+        Non-mandatory prayers prohibited 5 mins before Dhuhr.
+    </div>
 </div>
+
+<script>
+    // In a full implementation, this script would look up the 
+    // current date and pull the specific times from your JSON database.
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('gregorianDate').innerHTML = new Date().toLocaleDateString('en-US', options);
+</script>
 
 </body>
 </html>
