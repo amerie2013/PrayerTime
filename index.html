@@ -14,47 +14,35 @@
             font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg);
             color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
         }
-        .container { width: 100%; max-width: 450px; }
+        .container { width: 100%; max-width: 480px; }
         .top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; width: 100%; }
-        .calendar-btn {
-            background: var(--card); color: var(--text); border: 1px solid var(--dim);
-            padding: 8px 16px; border-radius: 12px; cursor: pointer;
-        }
         .date-header { text-align: center; margin-bottom: 20px; }
         .date-main { font-size: 1.2rem; font-weight: 700; }
         .date-hj { color: var(--gold); font-size: 0.95rem; margin-top: 4px; }
+        
         .hero {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 25px; border-radius: 28px; text-align: center;
             border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        .next-label { font-size: 0.75rem; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; }
         .timer { font-size: 3.5rem; font-weight: 800; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        
         .change-alert {
             background: var(--alert-bg); color: var(--alert-border);
             padding: 10px; border-radius: 12px; font-size: 0.85rem;
             border: 1px solid var(--alert-border); display: none; margin-top: 10px;
         }
+
         .prayer-card {
             background: var(--card); padding: 18px 20px; border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; border: 1px solid transparent;
         }
-        .p-names { display: flex; flex-direction: column; }
+        .prayer-card.highlight { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
         .p-ar { font-size: 1.3rem; color: var(--gold); font-weight: 600; }
-        .p-en { font-size: 0.95rem; color: var(--text); }
         .p-times { text-align: right; }
         .t-adh { font-size: 1.5rem; font-weight: 700; }
         .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
-        /* Modal */
-        #calendarModal {
-            display: none; position: fixed; inset: 0; background: var(--bg);
-            z-index: 100; overflow-y: auto; padding: 20px;
-        }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; }
-        th, td { border: 1px solid #334155; padding: 10px; text-align: center; }
-        th { background: var(--card); color: var(--gold); }
     </style>
 </head>
 <body>
@@ -62,7 +50,6 @@
 <div class="container">
     <div class="top-nav">
         <div style="font-weight: bold; color: var(--gold);">INTEGRATION ACADEMY</div>
-        <button class="calendar-btn" onclick="toggleModal()">📅 View Full Year</button>
     </div>
 
     <div class="date-header">
@@ -71,7 +58,7 @@
     </div>
 
     <div class="hero">
-        <div class="next-label" id="next-name">Calculating Next Prayer...</div>
+        <div id="next-label" style="font-size: 0.8rem; color: var(--gold);">NEXT PRAYER IN</div>
         <div class="timer" id="countdown">00:00:00</div>
         <div class="change-alert" id="iqamah-alert">
             ⚠️ <span id="alert-text"></span>
@@ -81,23 +68,18 @@
     <div id="prayer-list"></div>
 </div>
 
-<div id="calendarModal">
-    <button class="calendar-btn" onclick="toggleModal()">← Back to Today</button>
-    <h2 id="modalTitle" style="text-align: center; color: var(--gold);">2026 Schedule</h2>
-    <div id="fullCalendarData"></div>
-</div>
-
 <script>
-    // This object contains the logic for the whole year 2026
+    // CORE DATA ENGINE - POPULATE ALL 365 DAYS HERE
     const prayerData = {
-        // Sample entries showing shifts from your PDF
-        "2026-01-01": { hj: "12 Rajab", times: ["6:29", "7:58", "12:36", "2:53", "5:14", "6:35"], iq: ["6:45", "-", "1:00", "3:45", "5:24", "7:30"] }, // [cite: 1, 2]
-        "2026-02-18": { hj: "1 Ramadan", times: ["5:58", "7:17", "12:46", "3:44", "6:13", "7:28"], iq: ["6:18", "-", "1:00", "4:30", "6:23", "7:45"] }, // [cite: 201, 202]
-        "2026-02-25": { hj: "8 Ramadan", times: ["5:48", "7:09", "12:45", "3:43", "6:10", "7:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] }, // [cite: 201]
-        "2026-03-08": { hj: "19 Ramadan", times: ["6:31", "7:44", "1:44", "4:54", "7:27", "8:42"], iq: ["6:51", "-", "2:00", "6:00", "7:37", "9:00"] }, // [cite: 248, 251, 389]
-        "2026-03-20": { hj: "1 Shawwal", times: ["6:09", "7:20", "1:42", "5:00", "7:42", "8:56"], iq: ["6:30", "-", "2:00", "6:00", "7:52", "9:10"] }, // [cite: 305, 306, 395, 440]
-        "2026-05-27": { hj: "10 Dhul-Hijjah", times: ["4:09", "5:57", "1:29", "5:31", "9:02", "10:40"], iq: ["5:00", "-", "2:00", "6:30", "9:12", "10:50"] }, // [cite: 897, 898, 712, 720]
-        "2026-06-21": { hj: "6 Dhul-Hijjah", times: ["3:59", "5:53", "1:31", "5:35", "9:10", "10:50"], iq: ["5:00", "-", "2:00", "6:30", "9:20", "11:00"] }  // [cite: 926]
+        // JANUARY 2026
+        "2026-01-01": { hj: "12 Rajab", times: ["6:29", "7:58", "12:36", "2:53", "5:14", "6:35"], iq: ["6:45", "-", "1:00", "3:45", "5:24", "7:30"] }, [cite: 2]
+        // FEBRUARY 2026 (Ramadan Start)
+        "2026-02-18": { hj: "1 Ramadan*", times: ["5:58", "7:17", "12:46", "3:44", "6:13", "7:28"], iq: ["6:18", "-", "1:00", "4:30", "6:23", "7:45"] }, [cite: 201, 202]
+        "2026-02-25": { hj: "8 Ramadan", times: ["5:48", "7:09", "12:45", "3:43", "6:10", "7:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] }, [cite: 201]
+        "2026-02-28": { hj: "11 Ramadan", times: ["5:44", "7:04", "12:45", "3:46", "6:14", "7:29"], iq: ["6:04", "-", "1:00", "4:30", "6:29", "7:45"] }, [cite: 201]
+        // MARCH 2026 (DST & Shawwal)
+        "2026-03-08": { hj: "19 Ramadan", times: ["6:31", "7:44", "1:44", "4:54", "7:27", "8:42"], iq: ["6:51", "-", "2:00", "6:00", "7:37", "9:00"] }, [cite: 251, 350, 351, 353, 355]
+        "2026-03-20": { hj: "1 Shawwal**", times: ["6:09", "7:20", "1:41", "5:00", "7:42", "8:56"], iq: ["6:30", "-", "2:00", "6:00", "7:57", "9:10"] } [cite: 305, 306, 439, 444, 453, 511]
     };
 
     const names = [
@@ -109,29 +91,30 @@
     function updateApp() {
         const now = new Date();
         const dateKey = now.toISOString().split('T')[0];
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        const nextDateKey = tomorrow.toISOString().split('T')[0];
+        
+        // Find tomorrow for change alert
+        const tmrwDate = new Date(now);
+        tmrwDate.setDate(now.getDate() + 1);
+        const tmrwKey = tmrwDate.toISOString().split('T')[0];
 
-        const today = prayerData[dateKey] || prayerData["2026-02-25"]; // Default to Feb 25 for demo
-        const tmrw = prayerData[nextDateKey];
+        const today = prayerData[dateKey] || prayerData["2026-02-25"]; // Demo fallback
+        const tmrw = prayerData[tmrwKey];
 
-        document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        // UI Updates
+        document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
         document.getElementById('today-hij').innerText = today.hj + " 1447";
 
-        // Check for Iqamah Changes (Subtitle Alert)
+        // Subtitle Logic: Compare Iqamah times for tomorrow
         if (tmrw) {
-            let alertMsg = "";
+            let changeFound = false;
             for (let i = 0; i < names.length; i++) {
                 if (today.iq[i] !== tmrw.iq[i] && today.iq[i] !== "-") {
-                    alertMsg = `${names[i].en} Iqamah changes to ${tmrw.iq[i]} tomorrow`;
-                    break;
+                    document.getElementById('iqamah-alert').style.display = 'block';
+                    document.getElementById('alert-text').innerText = `${names[i].en} Iqamah changes to ${tmrw.iq[i]} tomorrow`;
+                    changeFound = true; break;
                 }
             }
-            if (alertMsg) {
-                document.getElementById('iqamah-alert').style.display = 'block';
-                document.getElementById('alert-text').innerText = alertMsg;
-            }
+            if (!changeFound) document.getElementById('iqamah-alert').style.display = 'none';
         }
 
         const list = document.getElementById('prayer-list');
@@ -139,21 +122,15 @@
         today.times.forEach((time, i) => {
             list.innerHTML += `
                 <div class="prayer-card">
-                    <div class="p-names"><span class="p-ar">${names[i].ar}</span><span class="p-en">${names[i].en}</span></div>
+                    <div class="p-names"><span class="p-ar">${names[i].ar}</span><br><span class="p-en">${names[i].en}</span></div>
                     <div class="p-times"><div class="t-adh">${time}</div>
                     <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + today.iq[i] : ""}</div></div>
-                </div>
-            `;
+                </div>`;
         });
     }
 
-    function toggleModal() {
-        const modal = document.getElementById('calendarModal');
-        modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-    }
-
     updateApp();
+    setInterval(updateApp, 60000); // Check every minute
 </script>
-
 </body>
 </html>
