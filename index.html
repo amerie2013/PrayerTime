@@ -1,209 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIA Prayer Dashboard</title>
+    <title>WIA Prayer Hub</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-gold: #fbbf24;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --success: #22c55e;
+            --bg: #0a0f1c;
+            --card: #161e31;
+            --gold: #d4af37;
+            --text: #ffffff;
+            --dim: #94a3b8;
+            --accent: #10b981;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 450px;
             padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .date-display {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .hijri-display {
-            color: var(--accent-gold);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .prayer-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            align-items: center;
         }
 
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        
+        /* Countdown Timer Style */
+        .countdown-container {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            padding: 25px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--gold);
+            margin-bottom: 25px;
+        }
+
+        #next-prayer-name { color: var(--gold); font-size: 1.2rem; text-transform: uppercase; }
+        #timer { font-size: 3rem; font-weight: bold; margin: 10px 0; }
+
+        .prayer-list { width: 100%; max-width: 450px; }
+        
         .prayer-card {
-            background: var(--card-bg);
-            padding: 16px 20px;
-            border-radius: 16px;
+            background: var(--card);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s;
-            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .prayer-card.active {
-            border: 2px solid var(--accent-gold);
-            background: rgba(251, 191, 36, 0.1);
-        }
+        .prayer-card.active { border-left: 4px solid var(--gold); background: #1e293b; }
 
-        .prayer-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .name-group { display: flex; flex-direction: column; }
+        .arabic-name { font-size: 1.2rem; color: var(--gold); margin-bottom: 4px; }
+        
+        .time-group { text-align: right; }
+        .adhan-main { font-size: 1.4rem; font-weight: bold; }
+        .iqamah-sub { font-size: 0.85rem; color: var(--accent); }
 
-        .prayer-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .iqamah-label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
-
-        .time-group {
-            text-align: right;
-        }
-
-        .adhan-time {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .iqamah-time {
-            font-size: 0.9rem;
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .footer-notes {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-        }
-
-        .status-badge {
-            background: var(--accent-gold);
-            color: black;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            margin-left: 10px;
+        /* Monthly Modal */
+        .modal-btn {
+            margin-top: 20px;
+            background: transparent;
+            color: var(--dim);
+            border: 1px solid var(--dim);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div class="date-display" id="gregorianDate">Wednesday, February 25, 2026</div>
-        <div class="hijri-display">8 Ramadan 1447</div> </div>
+<button class="lang-switch" onclick="toggleLang()">العربية</button>
 
-    <div class="prayer-list">
-        <div class="prayer-card">
-            <div class="prayer-info">
-                <span class="prayer-name">Fajr</span>
-                <span class="iqamah-label">Starts at Adhan</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">5:48</div>
-                <div class="iqamah-time">Iqamah 6:08</div>
-            </div>
+<div class="header">
+    <h1 id="app-title">WIA Prayer Times</h1>
+    <div id="hijri-date" style="color: var(--gold);">8 Ramadan 1447</div>
+</div>
+
+<div class="countdown-container">
+    <div id="next-label">Next Prayer In</div>
+    <div id="next-prayer-name">Dhuhr</div>
+    <div id="timer">00:45:12</div>
+</div>
+
+<div class="prayer-list">
+    <div class="prayer-card">
+        <div class="name-group">
+            <span class="arabic-name">الفجر</span>
+            <span class="eng-name">Fajr</span>
         </div>
-
-        <div class="prayer-card">
-            <div class="prayer-info">
-                <span class="prayer-name">Sunrise</span>
-                <span class="iqamah-label">Prayer Prohibited</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">7:09</div> </div>
-        </div>
-
-        <div class="prayer-card active">
-            <div class="prayer-info">
-                <span class="prayer-name">Dhuhr <span class="status-badge">CURRENT</span></span>
-                <span class="iqamah-label">Main Hall</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">12:45</div> <div class="iqamah-time">Iqamah 1:00</div>
-            </div>
-        </div>
-
-        <div class="prayer-card">
-            <div class="prayer-info">
-                <span class="prayer-name">Asr</span>
-                <span class="iqamah-label">Afternoon Prayer</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">3:43</div> <div class="iqamah-time">Iqamah 4:30</div>
-            </div>
-        </div>
-
-        <div class="prayer-card">
-            <div class="prayer-info">
-                <span class="prayer-name">Maghrib</span>
-                <span class="iqamah-label">Iftar Time</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">6:10</div> <div class="iqamah-time">Iqamah 6:20</div>
-            </div>
-        </div>
-
-        <div class="prayer-card">
-            <div class="prayer-info">
-                <span class="prayer-name">Isha</span>
-                <span class="iqamah-label">Night Prayer</span>
-            </div>
-            <div class="time-group">
-                <div class="adhan-time">7:25</div> <div class="iqamah-time">Iqamah 7:45</div>
-            </div>
+        <div class="time-group">
+            <div class="adhan-main">5:48</div>
+            <div class="iqamah-sub">Iqamah: 6:08</div>
         </div>
     </div>
 
-    <div class="footer-notes">
-        Janazah Dhuhr Iqamah: 01:50 p.m. (DST) [cite: 510]<br>
-        Non-mandatory prayers prohibited 5 mins before Dhuhr.
+    <div class="prayer-card active">
+        <div class="name-group">
+            <span class="arabic-name">الظهر</span>
+            <span class="eng-name">Dhuhr</span>
+        </div>
+        <div class="time-group">
+            <div class="adhan-main">12:45</div>
+            <div class="iqamah-sub">Iqamah: 1:00</div>
+        </div>
+    </div>
+
+    <div class="prayer-card">
+        <div class="name-group">
+            <span class="arabic-name">العصر</span>
+            <span class="eng-name">Asr</span>
+        </div>
+        <div class="time-group">
+            <div class="adhan-main">3:43</div>
+            <div class="iqamah-sub">Iqamah: 4:30</div>
+        </div>
+    </div>
+
+    <div class="prayer-card">
+        <div class="name-group">
+            <span class="arabic-name">المغرب</span>
+            <span class="eng-name">Maghrib</span>
+        </div>
+        <div class="time-group">
+            <div class="adhan-main">6:10</div>
+            <div class="iqamah-sub">Iqamah: 6:20</div>
+        </div>
+    </div>
+
+    <div class="prayer-card">
+        <div class="name-group">
+            <span class="arabic-name">العشاء</span>
+            <span class="eng-name">Isha</span>
+        </div>
+        <div class="time-group">
+            <div class="adhan-main">7:25</div>
+            <div class="iqamah-sub">Iqamah: 7:45</div>
+        </div>
     </div>
 </div>
 
+<button class="modal-btn" onclick="alert('Monthly Calendar View Coming Soon!')">View Monthly Schedule</button>
+
 <script>
-    // In a full implementation, this script would look up the 
-    // current date and pull the specific times from your JSON database.
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('gregorianDate').innerHTML = new Date().toLocaleDateString('en-US', options);
+    function toggleLang() {
+        const body = document.body;
+        const btn = document.querySelector('.lang-switch');
+        if(body.dir === 'ltr') {
+            body.dir = 'rtl';
+            btn.innerText = 'English';
+            document.getElementById('app-title').innerText = 'أوقات الصلاة';
+            document.getElementById('next-label').innerText = 'الصلاة القادمة خلال';
+        } else {
+            body.dir = 'ltr';
+            btn.innerText = 'العربية';
+            document.getElementById('app-title').innerText = 'WIA Prayer Times';
+            document.getElementById('next-label').innerText = 'Next Prayer In';
+        }
+    }
+
+    // Basic countdown logic placeholder
+    function startTimer() {
+        let seconds = 2712; // Static example for demo
+        setInterval(() => {
+            seconds--;
+            let h = Math.floor(seconds / 3600);
+            let m = Math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            document.getElementById('timer').innerText = 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+    startTimer();
 </script>
 
 </body>
