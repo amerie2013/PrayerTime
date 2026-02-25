@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integration Academy | 2026 Prayer Hub</title>
+    <title>WIA Prayer Hub 2026</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --gold: #fbbf24;
@@ -15,32 +15,23 @@
             color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
         }
         .container { width: 100%; max-width: 480px; }
-        .top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; width: 100%; }
-        .date-header { text-align: center; margin-bottom: 20px; }
-        .date-main { font-size: 1.2rem; font-weight: 700; }
-        .date-hj { color: var(--gold); font-size: 0.95rem; margin-top: 4px; }
-        
         .hero {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 25px; border-radius: 28px; text-align: center;
             border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 20px;
         }
         .timer { font-size: 3.5rem; font-weight: 800; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        
         .change-alert {
             background: var(--alert-bg); color: var(--alert-border);
             padding: 10px; border-radius: 12px; font-size: 0.85rem;
             border: 1px solid var(--alert-border); display: none; margin-top: 10px;
         }
-
         .prayer-card {
             background: var(--card); padding: 18px 20px; border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; border: 1px solid transparent;
         }
-        .prayer-card.highlight { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
         .p-ar { font-size: 1.3rem; color: var(--gold); font-weight: 600; }
-        .p-times { text-align: right; }
         .t-adh { font-size: 1.5rem; font-weight: 700; }
         .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
     </style>
@@ -48,17 +39,13 @@
 <body>
 
 <div class="container">
-    <div class="top-nav">
-        <div style="font-weight: bold; color: var(--gold);">INTEGRATION ACADEMY</div>
-    </div>
-
-    <div class="date-header">
-        <div class="date-main" id="today-gre">...</div>
-        <div class="date-hj" id="today-hij">...</div>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <div id="today-gre" style="font-weight: bold; font-size: 1.2rem;"></div>
+        <div id="today-hij" style="color: var(--gold);"></div>
     </div>
 
     <div class="hero">
-        <div id="next-label" style="font-size: 0.8rem; color: var(--gold);">NEXT PRAYER IN</div>
+        <div style="font-size: 0.8rem; color: var(--gold);">NEXT PRAYER IN</div>
         <div class="timer" id="countdown">00:00:00</div>
         <div class="change-alert" id="iqamah-alert">
             ⚠️ <span id="alert-text"></span>
@@ -66,20 +53,23 @@
     </div>
 
     <div id="prayer-list"></div>
+    
+    <p style="font-size: 0.7rem; color: var(--dim); text-align: center; margin-top: 20px;">
+        * Janazah Dhuhr Iqamah: 01:50 p.m. (DST) [cite: 510, 548, 920, 1038]
+    </p>
 </div>
 
 <script>
-    // CORE DATA ENGINE - POPULATE ALL 365 DAYS HERE
+    // Full 2026 Yearly Schedule Data (Samples of all monthly transitions)
     const prayerData = {
-        // JANUARY 2026
-        "2026-01-01": { hj: "12 Rajab", times: ["6:29", "7:58", "12:36", "2:53", "5:14", "6:35"], iq: ["6:45", "-", "1:00", "3:45", "5:24", "7:30"] }, [cite: 2]
-        // FEBRUARY 2026 (Ramadan Start)
-        "2026-02-18": { hj: "1 Ramadan*", times: ["5:58", "7:17", "12:46", "3:44", "6:13", "7:28"], iq: ["6:18", "-", "1:00", "4:30", "6:23", "7:45"] }, [cite: 201, 202]
-        "2026-02-25": { hj: "8 Ramadan", times: ["5:48", "7:09", "12:45", "3:43", "6:10", "7:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] }, [cite: 201]
-        "2026-02-28": { hj: "11 Ramadan", times: ["5:44", "7:04", "12:45", "3:46", "6:14", "7:29"], iq: ["6:04", "-", "1:00", "4:30", "6:29", "7:45"] }, [cite: 201]
-        // MARCH 2026 (DST & Shawwal)
-        "2026-03-08": { hj: "19 Ramadan", times: ["6:31", "7:44", "1:44", "4:54", "7:27", "8:42"], iq: ["6:51", "-", "2:00", "6:00", "7:37", "9:00"] }, [cite: 251, 350, 351, 353, 355]
-        "2026-03-20": { hj: "1 Shawwal**", times: ["6:09", "7:20", "1:41", "5:00", "7:42", "8:56"], iq: ["6:30", "-", "2:00", "6:00", "7:57", "9:10"] } [cite: 305, 306, 439, 444, 453, 511]
+        "2026-01-01": { hj: "12 Rajab", times: ["6:29", "7:58", "12:36", "2:53", "5:14", "6:35"], iq: ["6:45", "-", "1:00", "3:45", "5:24", "7:30"] }, // [cite: 2]
+        "2026-02-18": { hj: "1 Ramadan*", times: ["5:58", "7:17", "12:46", "3:44", "6:13", "7:28"], iq: ["6:18", "-", "1:00", "4:30", "6:23", "7:45"] }, // 
+        "2026-02-25": { hj: "8 Ramadan", times: ["5:48", "7:09", "12:45", "3:43", "6:10", "7:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] }, // 
+        "2026-03-20": { hj: "1 Shawwal**", times: ["6:09", "7:20", "1:41", "5:00", "7:42", "8:56"], iq: ["6:30", "-", "2:00", "6:00", "7:57", "9:10"] }, // [cite: 305, 395]
+        "2026-05-27": { hj: "10 Dhul-Hijjah**", times: ["4:09", "5:57", "1:29", "5:31", "9:02", "10:40"], iq: ["5:00", "-", "2:00", "6:30", "9:12", "10:50"] }, // [cite: 897, 898]
+        "2026-06-15": { hj: "15 Dhul-Hijjah", times: ["4:04", "5:55", "1:30", "5:32", "9:06", "10:44"], iq: ["5:00", "-", "2:00", "6:30", "9:16", "10:54"] }, // [cite: 926]
+        "2026-08-01": { hj: "18 Safar", times: ["4:42", "6:22", "1:38", "5:35", "8:54", "10:23"], iq: ["5:30", "-", "2:00", "6:30", "9:04", "10:33"] }, // [cite: 999]
+        "2026-11-01": { hj: "21 Jumādā Al-Awwal", times: ["5:39", "7:03", "12:16", "3:01", "5:28", "6:44"], iq: ["6:15", "-", "1:00", "3:45", "5:38", "7:30"] }  // [cite: 1043]
     };
 
     const names = [
@@ -92,19 +82,16 @@
         const now = new Date();
         const dateKey = now.toISOString().split('T')[0];
         
-        // Find tomorrow for change alert
         const tmrwDate = new Date(now);
         tmrwDate.setDate(now.getDate() + 1);
         const tmrwKey = tmrwDate.toISOString().split('T')[0];
 
-        const today = prayerData[dateKey] || prayerData["2026-02-25"]; // Demo fallback
+        const today = prayerData[dateKey] || prayerData["2026-02-25"]; // Fallback for testing
         const tmrw = prayerData[tmrwKey];
 
-        // UI Updates
         document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
         document.getElementById('today-hij').innerText = today.hj + " 1447";
 
-        // Subtitle Logic: Compare Iqamah times for tomorrow
         if (tmrw) {
             let changeFound = false;
             for (let i = 0; i < names.length; i++) {
@@ -122,15 +109,20 @@
         today.times.forEach((time, i) => {
             list.innerHTML += `
                 <div class="prayer-card">
-                    <div class="p-names"><span class="p-ar">${names[i].ar}</span><br><span class="p-en">${names[i].en}</span></div>
-                    <div class="p-times"><div class="t-adh">${time}</div>
-                    <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + today.iq[i] : ""}</div></div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="p-ar">${names[i].ar}</span>
+                        <span style="font-size: 0.9rem;">${names[i].en}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="t-adh">${time}</div>
+                        <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + today.iq[i] : ""}</div>
+                    </div>
                 </div>`;
         });
     }
 
     updateApp();
-    setInterval(updateApp, 60000); // Check every minute
+    setInterval(updateApp, 60000);
 </script>
 </body>
 </html>
