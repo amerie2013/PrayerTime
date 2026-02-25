@@ -31,7 +31,6 @@
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; border: 2px solid transparent; transition: all 0.3s ease;
         }
-        /* Golden Frame for current prayer */
         .current-prayer {
             border-color: var(--gold);
             box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
@@ -41,11 +40,23 @@
         .p-ar { font-size: 1.3rem; color: var(--gold); font-weight: 600; }
         .t-adh { font-size: 1.5rem; font-weight: 700; }
         .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+        
+        /* Sound Toggle Styles */
+        .controls { display: flex; justify-content: center; margin-bottom: 10px; gap: 10px; }
+        .btn-sound {
+            background: var(--card); color: var(--gold); border: 1px solid var(--gold);
+            padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+        }
+        .btn-sound.muted { color: var(--dim); border-color: var(--dim); }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="controls">
+        <button id="soundToggle" class="btn-sound" onclick="toggleSound()">🔊 Audio On</button>
+    </div>
+    
     <div style="text-align: center; margin-bottom: 20px;">
         <div id="today-gre" style="font-weight: bold; font-size: 1.2rem;"></div>
         <div id="today-hj" style="color: var(--gold);"></div>
@@ -62,8 +73,12 @@
     <div id="prayer-list"></div>
 </div>
 
+<audio id="athanAudio" src="https://raw.githubusercontent.com/amerie2013/PrayerTime/amerie2013-Palestine_IsAldeen_Amarna/Palestine_IsAldeen_Amarna.mp3"></audio>
+
 <script>
-    // Full 2026 Data Engine Logic 
+    let isMuted = false;
+    let athanPlayedForCurrent = false;
+
     const prayerData = {
         "2026-02-25": { hj: "8 Ramadan", times: ["05:48", "07:09", "12:45", "15:43", "18:10", "19:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] },
         "2026-02-26": { hj: "9 Ramadan", times: ["05:47", "07:07", "12:46", "15:44", "18:12", "19:26"], iq: ["6:07", "-", "1:00", "4:30", "6:22", "7:45"] }
@@ -74,6 +89,14 @@
         { en: "Dhuhr", ar: "الظهر" }, { en: "Asr", ar: "العصر" },
         { en: "Maghrib", ar: "المغرب" }, { en: "Isha", ar: "العشاء" }
     ];
+
+    function toggleSound() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('soundToggle');
+        btn.innerText = isMuted ? "🔇 Silent" : "🔊 Audio On";
+        btn.classList.toggle('muted', isMuted);
+        if(isMuted) document.getElementById('athanAudio').pause();
+    }
 
     function updateApp() {
         const now = new Date();
@@ -89,13 +112,12 @@
         let nextPrayerIndex = -1;
         const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
-        // Render cards and find next prayer
         today.times.forEach((time, i) => {
-            const isCurrent = (nextPrayerIndex === -1 && time > currentTimeStr);
-            if (isCurrent) nextPrayerIndex = i;
+            const isNext = (nextPrayerIndex === -1 && time > currentTimeStr);
+            if (isNext) nextPrayerIndex = i;
 
             list.innerHTML += `
-                <div class="prayer-card ${isCurrent ? 'current-prayer' : ''}">
+                <div class="prayer-card ${isNext ? 'current-prayer' : ''}">
                     <div style="display: flex; flex-direction: column;">
                         <span class="p-ar">${names[i].ar}</span>
                         <span style="font-size: 0.9rem;">${names[i].en}</span>
@@ -107,13 +129,18 @@
                 </div>`;
         });
 
-        // Countdown Logic
         if (nextPrayerIndex !== -1) {
             const nextTime = today.times[nextPrayerIndex].split(':');
             const target = new Date();
             target.setHours(nextTime[0], nextTime[1], 0);
             
             const diff = target - now;
+            
+            // Audio Trigger Logic
+            if (diff <= 1000 && diff > 0 && !isMuted && names[nextPrayerIndex].en !== "Sunrise") {
+                document.getElementById('athanAudio').play();
+            }
+
             const h = Math.floor(diff / 3600000);
             const m = Math.floor((diff % 3600000) / 60000);
             const s = Math.floor((diff % 60000) / 1000);
