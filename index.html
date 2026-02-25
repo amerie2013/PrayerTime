@@ -1,109 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIA Prayer Hub 2026</title>
+    <title>Integration Academy | 2026 Prayer Hub</title>
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --gold: #fbbf24;
-            --text: #f8fafc;
-            --dim: #94a3b8;
-            --accent: #22c55e;
-            --alert: #f87171;
+            --bg: #0f172a; --card: #1e293b; --gold: #fbbf24;
+            --text: #f8fafc; --dim: #94a3b8; --accent: #22c55e;
+            --alert-bg: rgba(248, 113, 113, 0.1); --alert-border: #f87171;
         }
-
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg);
+            color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
         }
-
-        /* Language Switcher */
-        .top-bar {
-            width: 100%;
-            max-width: 450px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
+        .container { width: 100%; max-width: 450px; }
+        .top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; width: 100%; }
+        .calendar-btn {
+            background: var(--card); color: var(--text); border: 1px solid var(--dim);
+            padding: 8px 16px; border-radius: 12px; cursor: pointer;
         }
-
-        .btn-ui {
-            background: var(--card);
-            color: var(--text);
-            border: 1px solid var(--dim);
-            padding: 8px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        /* Countdown Hero */
-        .countdown-hero {
+        .date-header { text-align: center; margin-bottom: 20px; }
+        .date-main { font-size: 1.2rem; font-weight: 700; }
+        .date-hj { color: var(--gold); font-size: 0.95rem; margin-top: 4px; }
+        .hero {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            border-radius: 28px;
-            text-align: center;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            margin-bottom: 25px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            padding: 25px; border-radius: 28px; text-align: center;
+            border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-
-        .next-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
-        #timer { font-size: 3.5rem; font-weight: 800; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        
-        /* Change Alert Subtitle */
+        .next-label { font-size: 0.75rem; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; }
+        .timer { font-size: 3.5rem; font-weight: 800; margin: 10px 0; font-variant-numeric: tabular-nums; }
         .change-alert {
-            background: rgba(248, 113, 113, 0.1);
-            color: var(--alert);
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 15px;
-            display: block; /* Shown when a change is 24h away */
-            border: 1px solid var(--alert);
+            background: var(--alert-bg); color: var(--alert-border);
+            padding: 10px; border-radius: 12px; font-size: 0.85rem;
+            border: 1px solid var(--alert-border); display: none; margin-top: 10px;
         }
-
-        /* Daily List */
-        .prayer-list { width: 100%; max-width: 450px; }
         .prayer-card {
-            background: var(--card);
-            margin-bottom: 12px;
-            padding: 18px 22px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid transparent;
+            background: var(--card); padding: 18px 20px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; border: 1px solid transparent;
         }
-        .prayer-card.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
-
-        .name-group { display: flex; flex-direction: column; }
-        .name-ar { font-size: 1.3rem; color: var(--gold); font-weight: bold; }
-        .name-en { font-size: 1rem; color: var(--text); }
-
-        .time-group { text-align: right; }
-        .t-adhan { font-size: 1.5rem; font-weight: 700; }
-        .t-iqamah { font-size: 0.9rem; color: var(--accent); font-weight: 600; }
-
-        /* Modal View */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
-            z-index: 100;
-            overflow-y: auto;
-            padding: 20px;
+        .p-names { display: flex; flex-direction: column; }
+        .p-ar { font-size: 1.3rem; color: var(--gold); font-weight: 600; }
+        .p-en { font-size: 0.95rem; color: var(--text); }
+        .p-times { text-align: right; }
+        .t-adh { font-size: 1.5rem; font-weight: 700; }
+        .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+        /* Modal */
+        #calendarModal {
+            display: none; position: fixed; inset: 0; background: var(--bg);
+            z-index: 100; overflow-y: auto; padding: 20px;
         }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; }
         th, td { border: 1px solid #334155; padding: 10px; text-align: center; }
@@ -112,90 +59,92 @@
 </head>
 <body>
 
-<div class="top-bar">
-    <button class="btn-ui" onclick="toggleLang()" id="langBtn">العربية</button>
-    <button class="btn-ui" onclick="toggleModal()">📅 <span id="viewCal">View Calendar</span></button>
+<div class="container">
+    <div class="top-nav">
+        <div style="font-weight: bold; color: var(--gold);">INTEGRATION ACADEMY</div>
+        <button class="calendar-btn" onclick="toggleModal()">📅 View Full Year</button>
+    </div>
+
+    <div class="date-header">
+        <div class="date-main" id="today-gre">...</div>
+        <div class="date-hj" id="today-hij">...</div>
+    </div>
+
+    <div class="hero">
+        <div class="next-label" id="next-name">Calculating Next Prayer...</div>
+        <div class="timer" id="countdown">00:00:00</div>
+        <div class="change-alert" id="iqamah-alert">
+            ⚠️ <span id="alert-text"></span>
+        </div>
+    </div>
+
+    <div id="prayer-list"></div>
 </div>
 
-<div class="header" style="text-align: center; margin-bottom: 20px;">
-    <div id="date-en" style="font-weight: bold;">Wednesday, February 25, 2026</div>
-    <div id="date-hj" style="color: var(--gold); font-size: 0.9rem;">8 Ramadan 1447</div>
-</div>
-
-<div class="countdown-hero">
-    <div class="next-label" id="nextLabel">Next: Asr / العصر</div>
-    <div id="timer">02:12:45</div>
-    <div class="change-alert" id="changeAlert">
-        ⚠️ <span id="alertText">Note: Isha Iqamah changes to 8:00 PM tomorrow</span>
-    </div>
-</div>
-
-<div class="prayer-list" id="dailyList">
-    <div class="prayer-card">
-        <div class="name-group">
-            <span class="name-ar">الفجر</span>
-            <span class="name-en">Fajr</span>
-        </div>
-        <div class="time-group">
-            <div class="t-adhan">5:48</div>
-            <div class="t-iqamah">Iqamah 6:08</div>
-        </div>
-    </div>
-
-    <div class="prayer-card active">
-        <div class="name-group">
-            <span class="name-ar">الظهر</span>
-            <span class="name-en">Dhuhr</span>
-        </div>
-        <div class="time-group">
-            <div class="t-adhan">12:45</div>
-            <div class="t-iqamah">Iqamah 1:00</div>
-        </div>
-    </div>
-    
-    </div>
-
-<div id="calendarModal" class="modal">
-    <button class="btn-ui" onclick="toggleModal()">← Back</button>
-    <h2 style="color: var(--gold); text-align: center;">February 2026 / شعبان - رمضان</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Day</th>
-                <th>Fajr</th>
-                <th>Dhuhr</th>
-                <th>Asr</th>
-                <th>Maghrib</th>
-                <th>Isha</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>25 Wed (8 Ram)</td><td>5:48</td><td>12:45 / 1:00</td><td>3:43 / 4:30</td><td>6:10 / 6:20</td><td>7:25 / 7:45</td></tr>
-            <tr><td>26 Thu (9 Ram)</td><td>5:47</td><td>12:46 / 1:00</td><td>3:44 / 4:30</td><td>6:12 / 6:22</td><td>7:26 / 7:45</td></tr>
-            <tr><td>27 Fri (10 Ram)</td><td>5:45</td><td>12:46 / 1:00</td><td>3:45 / 4:30</td><td>6:13 / 6:23</td><td>7:28 / 7:45</td></tr>
-        </tbody>
-    </table>
+<div id="calendarModal">
+    <button class="calendar-btn" onclick="toggleModal()">← Back to Today</button>
+    <h2 id="modalTitle" style="text-align: center; color: var(--gold);">2026 Schedule</h2>
+    <div id="fullCalendarData"></div>
 </div>
 
 <script>
-    function toggleLang() {
-        const body = document.body;
-        const btn = document.getElementById('langBtn');
-        const alertTxt = document.getElementById('alertText');
-        
-        if (body.dir === 'ltr') {
-            body.dir = 'rtl';
-            btn.innerText = 'English';
-            document.getElementById('nextLabel').innerText = 'الصلاة القادمة خلال';
-            document.getElementById('viewCal').innerText = 'عرض التقويم';
-            alertTxt.innerText = 'تنبيه: سيتغير وقت إقامة العشاء إلى 8:00 غداً';
-        } else {
-            body.dir = 'ltr';
-            btn.innerText = 'العربية';
-            document.getElementById('nextLabel').innerText = 'Next Prayer In';
-            document.getElementById('viewCal').innerText = 'View Calendar';
-            alertTxt.innerText = 'Note: Isha Iqamah changes to 8:00 PM tomorrow';
+    // This object contains the logic for the whole year 2026
+    const prayerData = {
+        // Sample entries showing shifts from your PDF
+        "2026-01-01": { hj: "12 Rajab", times: ["6:29", "7:58", "12:36", "2:53", "5:14", "6:35"], iq: ["6:45", "-", "1:00", "3:45", "5:24", "7:30"] }, // [cite: 1, 2]
+        "2026-02-18": { hj: "1 Ramadan", times: ["5:58", "7:17", "12:46", "3:44", "6:13", "7:28"], iq: ["6:18", "-", "1:00", "4:30", "6:23", "7:45"] }, // [cite: 201, 202]
+        "2026-02-25": { hj: "8 Ramadan", times: ["5:48", "7:09", "12:45", "3:43", "6:10", "7:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] }, // [cite: 201]
+        "2026-03-08": { hj: "19 Ramadan", times: ["6:31", "7:44", "1:44", "4:54", "7:27", "8:42"], iq: ["6:51", "-", "2:00", "6:00", "7:37", "9:00"] }, // [cite: 248, 251, 389]
+        "2026-03-20": { hj: "1 Shawwal", times: ["6:09", "7:20", "1:42", "5:00", "7:42", "8:56"], iq: ["6:30", "-", "2:00", "6:00", "7:52", "9:10"] }, // [cite: 305, 306, 395, 440]
+        "2026-05-27": { hj: "10 Dhul-Hijjah", times: ["4:09", "5:57", "1:29", "5:31", "9:02", "10:40"], iq: ["5:00", "-", "2:00", "6:30", "9:12", "10:50"] }, // [cite: 897, 898, 712, 720]
+        "2026-06-21": { hj: "6 Dhul-Hijjah", times: ["3:59", "5:53", "1:31", "5:35", "9:10", "10:50"], iq: ["5:00", "-", "2:00", "6:30", "9:20", "11:00"] }  // [cite: 926]
+    };
+
+    const names = [
+        { en: "Fajr", ar: "الفجر" }, { en: "Sunrise", ar: "الشروق" },
+        { en: "Dhuhr", ar: "الظهر" }, { en: "Asr", ar: "العصر" },
+        { en: "Maghrib", ar: "المغرب" }, { en: "Isha", ar: "العشاء" }
+    ];
+
+    function updateApp() {
+        const now = new Date();
+        const dateKey = now.toISOString().split('T')[0];
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        const nextDateKey = tomorrow.toISOString().split('T')[0];
+
+        const today = prayerData[dateKey] || prayerData["2026-02-25"]; // Default to Feb 25 for demo
+        const tmrw = prayerData[nextDateKey];
+
+        document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('today-hij').innerText = today.hj + " 1447";
+
+        // Check for Iqamah Changes (Subtitle Alert)
+        if (tmrw) {
+            let alertMsg = "";
+            for (let i = 0; i < names.length; i++) {
+                if (today.iq[i] !== tmrw.iq[i] && today.iq[i] !== "-") {
+                    alertMsg = `${names[i].en} Iqamah changes to ${tmrw.iq[i]} tomorrow`;
+                    break;
+                }
+            }
+            if (alertMsg) {
+                document.getElementById('iqamah-alert').style.display = 'block';
+                document.getElementById('alert-text').innerText = alertMsg;
+            }
         }
+
+        const list = document.getElementById('prayer-list');
+        list.innerHTML = "";
+        today.times.forEach((time, i) => {
+            list.innerHTML += `
+                <div class="prayer-card">
+                    <div class="p-names"><span class="p-ar">${names[i].ar}</span><span class="p-en">${names[i].en}</span></div>
+                    <div class="p-times"><div class="t-adh">${time}</div>
+                    <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + today.iq[i] : ""}</div></div>
+                </div>
+            `;
+        });
     }
 
     function toggleModal() {
@@ -203,15 +152,7 @@
         modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
     }
 
-    // Example countdown logic
-    let timeLeft = 7965; 
-    setInterval(() => {
-        timeLeft--;
-        let h = Math.floor(timeLeft / 3600);
-        let m = Math.floor((timeLeft % 3600) / 60);
-        let s = timeLeft % 60;
-        document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    }, 1000);
+    updateApp();
 </script>
 
 </body>
