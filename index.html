@@ -41,20 +41,22 @@
         .t-adh { font-size: 1.5rem; font-weight: 700; }
         .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
         
-        /* Sound Toggle Styles */
-        .controls { display: flex; justify-content: center; margin-bottom: 10px; gap: 10px; }
-        .btn-sound {
+        /* New Control Buttons */
+        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .btn-ui {
             background: var(--card); color: var(--gold); border: 1px solid var(--gold);
-            padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+            padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.75rem; font-weight: bold;
         }
-        .btn-sound.muted { color: var(--dim); border-color: var(--dim); }
+        .btn-ui.active { background: var(--gold); color: var(--bg); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="controls">
-        <button id="soundToggle" class="btn-sound" onclick="toggleSound()">🔊 Audio On</button>
+        <button id="soundToggle" class="btn-ui" onclick="toggleSound()">🔊 Audio On</button>
+        <button class="btn-ui" onclick="testAthan()">⚡ Test Athan</button>
+        <button id="janazahBtn" class="btn-ui" onclick="toggleJanazah()">⚰️ Janazah Off</button>
     </div>
     
     <div style="text-align: center; margin-bottom: 20px;">
@@ -76,9 +78,11 @@
 <audio id="athanAudio" src="https://raw.githubusercontent.com/amerie2013/PrayerTime/amerie2013-Palestine_IsAldeen_Amarna/Palestine_IsAldeen_Amarna.mp3"></audio>
 
 <script>
-    let isMuted = false;
-    let athanPlayedForCurrent = false;
+    let isMuted = true;
+    let isJanazahMode = false;
+    const audio = document.getElementById('athanAudio');
 
+    // Sample Data from PDF sources
     const prayerData = {
         "2026-02-25": { hj: "8 Ramadan", times: ["05:48", "07:09", "12:45", "15:43", "18:10", "19:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] },
         "2026-02-26": { hj: "9 Ramadan", times: ["05:47", "07:07", "12:46", "15:44", "18:12", "19:26"], iq: ["6:07", "-", "1:00", "4:30", "6:22", "7:45"] }
@@ -94,8 +98,20 @@
         isMuted = !isMuted;
         const btn = document.getElementById('soundToggle');
         btn.innerText = isMuted ? "🔇 Silent" : "🔊 Audio On";
-        btn.classList.toggle('muted', isMuted);
-        if(isMuted) document.getElementById('athanAudio').pause();
+        btn.classList.toggle('active', !isMuted);
+        if(isMuted) audio.pause();
+    }
+
+    function testAthan() {
+        audio.currentTime = 0;
+        audio.play().catch(e => alert("Please click 'Audio On' first to allow sound."));
+    }
+
+    function toggleJanazah() {
+        isJanazahMode = !isJanazahMode;
+        document.getElementById('janazahBtn').innerText = isJanazahMode ? "⚰️ Janazah ON" : "⚰️ Janazah Off";
+        document.getElementById('janazahBtn').classList.toggle('active', isJanazahMode);
+        updateApp();
     }
 
     function updateApp() {
@@ -109,12 +125,16 @@
         const list = document.getElementById('prayer-list');
         list.innerHTML = "";
         
-        let nextPrayerIndex = -1;
-        const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        let nextIndex = -1;
+        const currentStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
         today.times.forEach((time, i) => {
-            const isNext = (nextPrayerIndex === -1 && time > currentTimeStr);
-            if (isNext) nextPrayerIndex = i;
+            const isNext = (nextIndex === -1 && time > currentStr);
+            if (isNext) nextIndex = i;
+
+            // Apply Janazah Rule from PDF: Dhuhr Iqamah shifts to 01:50 PM during DST [cite: 510, 548, 920, 955]
+            let iqamahDisplay = today.iq[i];
+            if (isJanazahMode && names[i].en === "Dhuhr") iqamahDisplay = "1:50*";
 
             list.innerHTML += `
                 <div class="prayer-card ${isNext ? 'current-prayer' : ''}">
@@ -124,30 +144,25 @@
                     </div>
                     <div style="text-align: right;">
                         <div class="t-adh">${time.replace(/^0/, '')}</div>
-                        <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + today.iq[i] : ""}</div>
+                        <div class="t-iq">${today.iq[i] !== "-" ? "Iqamah " + iqamahDisplay : ""}</div>
                     </div>
                 </div>`;
         });
 
-        if (nextPrayerIndex !== -1) {
-            const nextTime = today.times[nextPrayerIndex].split(':');
+        if (nextIndex !== -1) {
+            const nextTimeArr = today.times[nextIndex].split(':');
             const target = new Date();
-            target.setHours(nextTime[0], nextTime[1], 0);
+            target.setHours(nextTimeArr[0], nextTimeArr[1], 0);
             
             const diff = target - now;
-            
-            // Audio Trigger Logic
-            if (diff <= 1000 && diff > 0 && !isMuted && names[nextPrayerIndex].en !== "Sunrise") {
-                document.getElementById('athanAudio').play();
-            }
+            if (diff <= 1000 && diff > 0 && !isMuted && names[nextIndex].en !== "Sunrise") audio.play();
 
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
+            const h = Math.floor(diff / 3600000).toString().padStart(2,'0');
+            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2,'0');
+            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2,'0');
             
-            document.getElementById('countdown').innerText = 
-                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('next-label').innerText = `NEXT: ${names[nextPrayerIndex].en} / ${names[nextPrayerIndex].ar}`;
+            document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+            document.getElementById('next-label').innerText = `NEXT: ${names[nextIndex].en} / ${names[nextIndex].ar}`;
         }
     }
 
