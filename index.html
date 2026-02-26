@@ -10,95 +10,159 @@
             --text: #f8fafc; --dim: #94a3b8; --accent: #22c55e;
             --alert-bg: rgba(248, 113, 113, 0.1); --alert-border: #f87171;
         }
+        [data-theme="light"] {
+            --bg: #f1f5f9; --card: #ffffff; --gold: #b45309;
+            --text: #1e293b; --dim: #64748b; --accent: #15803d;
+            --alert-bg: #fee2e2; --alert-border: #ef4444;
+        }
         body {
             font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg);
-            color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
+            color: var(--text); margin: 0; padding: 10px; transition: 0.3s;
         }
-        .container { width: 100%; max-width: 480px; }
+        .container { width: 100%; max-width: 480px; margin: auto; }
+        
+        /* Compact Header */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .settings-btn { background: var(--card); border: 1px solid var(--dim); color: var(--text); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+        
+        .dropdown {
+            display: none; position: absolute; right: 10px; top: 50px; background: var(--card);
+            border: 1px solid var(--dim); border-radius: 12px; width: 220px; padding: 15px; z-index: 1000;
+        }
+        .dropdown.show { display: block; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.85rem; }
+
+        /* Compact Hero */
         .hero {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 25px; border-radius: 28px; text-align: center;
-            border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+            padding: 15px; border-radius: 20px; text-align: center;
+            border: 1px solid var(--gold); margin-bottom: 15px;
         }
-        .timer { font-size: 3.5rem; font-weight: 800; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .timer { font-size: 2.8rem; font-weight: 800; margin: 5px 0; font-variant-numeric: tabular-nums; }
+        
+        /* Shorter Rectangle Boxes */
+        .prayer-card {
+            background: var(--card); padding: 10px 18px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; border: 1.5px solid transparent; height: 55px; /* Fixed shorter height */
+        }
+        .current-prayer { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
+        .p-ar { font-size: 1.1rem; color: var(--gold); font-weight: 600; line-height: 1; }
+        .p-en { font-size: 0.8rem; line-height: 1; }
+        .t-adh { font-size: 1.2rem; font-weight: 700; }
+        .t-iq { font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+        
         .change-alert {
             background: var(--alert-bg); color: var(--alert-border);
-            padding: 10px; border-radius: 12px; font-size: 0.85rem;
-            border: 1px solid var(--alert-border); display: none; margin-top: 10px;
+            padding: 5px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--alert-border);
         }
-        .prayer-card {
-            background: var(--card); padding: 18px 20px; border-radius: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; border: 2px solid transparent; transition: all 0.3s ease;
-        }
-        /* Golden Frame for current prayer */
-        .current-prayer {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-            background: rgba(251, 191, 36, 0.05);
-            transform: scale(1.02);
-        }
-        .p-ar { font-size: 1.3rem; color: var(--gold); font-weight: 600; }
-        .t-adh { font-size: 1.5rem; font-weight: 700; }
-        .t-iq { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <div id="today-gre" style="font-weight: bold; font-size: 1.2rem;"></div>
-        <div id="today-hj" style="color: var(--gold);"></div>
+    <div class="top-bar">
+        <div style="font-weight: bold; color: var(--gold); font-size: 0.9rem;">WIA PRAYER HUB</div>
+        <div class="settings-container">
+            <button class="settings-btn" onclick="toggleDropdown()">⚙️ Settings</button>
+            <div id="settingsMenu" class="dropdown">
+                <div class="setting-item">
+                    <span>Dark Mode</span>
+                    <input type="checkbox" id="themeToggle" checked onclick="toggleTheme()">
+                </div>
+                <div class="setting-item">
+                    <span>Athan Audio</span>
+                    <input type="checkbox" id="athanToggle" onclick="enableAudio()">
+                </div>
+                <button style="width:100%; margin-top:5px;" class="settings-btn" onclick="testAudio()">🔊 Test Sound</button>
+            </div>
+        </div>
     </div>
 
     <div class="hero">
-        <div id="next-label" style="font-size: 0.8rem; color: var(--gold); letter-spacing: 1px;">NEXT PRAYER IN</div>
+        <div id="next-label" style="font-size: 0.7rem; color: var(--gold);">NEXT PRAYER IN</div>
         <div class="timer" id="countdown">00:00:00</div>
-        <div class="change-alert" id="iqamah-alert">
-            ⚠️ <span id="alert-text"></span>
-        </div>
+        <div class="change-alert" id="iqamah-alert" style="display:none">⚠️ <span id="alert-text"></span></div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 10px;">
+        <div id="today-gre" style="font-weight: bold; font-size: 1rem;"></div>
+        <div id="today-hj" style="color: var(--gold); font-size: 0.85rem;"></div>
     </div>
 
     <div id="prayer-list"></div>
 </div>
 
-<script>
-    // Full 2026 Data Engine Logic 
-    const prayerData = {
-        "2026-02-25": { hj: "8 Ramadan", times: ["05:48", "07:09", "12:45", "15:43", "18:10", "19:25"], iq: ["6:08", "-", "1:00", "4:30", "6:20", "7:45"] },
-        "2026-02-26": { hj: "9 Ramadan", times: ["05:47", "07:07", "12:46", "15:44", "18:12", "19:26"], iq: ["6:07", "-", "1:00", "4:30", "6:22", "7:45"] }
-    };
+<audio id="athanAudio" src="https://raw.githubusercontent.com/amerie2013/PrayerTime/amerie2013-Palestine_IsAldeen_Amarna/Palestine_IsAldeen_Amarna.mp3"></audio>
 
+<script>
+    let audioActivated = localStorage.getItem('athanActive') === 'true';
     const names = [
         { en: "Fajr", ar: "الفجر" }, { en: "Sunrise", ar: "الشروق" },
         { en: "Dhuhr", ar: "الظهر" }, { en: "Asr", ar: "العصر" },
         { en: "Maghrib", ar: "المغرب" }, { en: "Isha", ar: "العشاء" }
     ];
 
+    // February 26, 2026 data
+    const prayerData = {
+        "2026-02-26": { hj: "9 Ramadan", times: ["05:47", "07:07", "12:46", "15:44", "18:12", "19:26"], iq: ["6:07", "-", "1:00", "4:30", "6:22", "7:45"] },
+        "2026-02-27": { hj: "10 Ramadan", times: ["05:45", "07:06", "12:46", "15:45", "18:13", "19:28"], iq: ["6:05", "-", "1:00", "4:30", "6:23", "7:45"] }
+    };
+
+    function init() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.getElementById('themeToggle').checked = (savedTheme === 'dark');
+        document.getElementById('athanToggle').checked = audioActivated;
+        updateApp();
+    }
+
+    function toggleDropdown() { document.getElementById('settingsMenu').classList.toggle('show'); }
+
+    function toggleTheme() {
+        const isDark = document.getElementById('themeToggle').checked;
+        const theme = isDark ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    function enableAudio() {
+        audioActivated = document.getElementById('athanToggle').checked;
+        localStorage.setItem('athanActive', audioActivated);
+        if(audioActivated) {
+            const audio = document.getElementById('athanAudio');
+            audio.play().then(() => audio.pause()); 
+        }
+    }
+
+    function testAudio() {
+        const audio = document.getElementById('athanAudio');
+        audio.currentTime = 0;
+        audio.play().catch(() => alert("Click 'Athan Audio' setting first!"));
+    }
+
     function updateApp() {
         const now = new Date();
         const dateKey = now.toISOString().split('T')[0];
-        const today = prayerData[dateKey] || prayerData["2026-02-25"];
+        const today = prayerData[dateKey] || prayerData["2026-02-26"];
 
-        document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        document.getElementById('today-gre').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         document.getElementById('today-hj').innerText = today.hj + " 1447";
+
+        let nextIndex = -1;
+        const currentStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
         const list = document.getElementById('prayer-list');
         list.innerHTML = "";
-        
-        let nextPrayerIndex = -1;
-        const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-        // Render cards and find next prayer
         today.times.forEach((time, i) => {
-            const isCurrent = (nextPrayerIndex === -1 && time > currentTimeStr);
-            if (isCurrent) nextPrayerIndex = i;
+            const isNext = (nextIndex === -1 && time > currentStr);
+            if (isNext) nextIndex = i;
 
             list.innerHTML += `
-                <div class="prayer-card ${isCurrent ? 'current-prayer' : ''}">
-                    <div style="display: flex; flex-direction: column;">
+                <div class="prayer-card ${isNext ? 'current-prayer' : ''}">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
                         <span class="p-ar">${names[i].ar}</span>
-                        <span style="font-size: 0.9rem;">${names[i].en}</span>
+                        <span class="p-en">${names[i].en}</span>
                     </div>
                     <div style="text-align: right;">
                         <div class="t-adh">${time.replace(/^0/, '')}</div>
@@ -107,25 +171,25 @@
                 </div>`;
         });
 
-        // Countdown Logic
-        if (nextPrayerIndex !== -1) {
-            const nextTime = today.times[nextPrayerIndex].split(':');
+        if (nextIndex !== -1) {
+            const [h, m] = today.times[nextIndex].split(':');
             const target = new Date();
-            target.setHours(nextTime[0], nextTime[1], 0);
-            
+            target.setHours(h, m, 0);
             const diff = target - now;
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            
-            document.getElementById('countdown').innerText = 
-                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('next-label').innerText = `NEXT: ${names[nextPrayerIndex].en} / ${names[nextPrayerIndex].ar}`;
+
+            if (diff <= 1000 && diff > 0 && audioActivated && names[nextIndex].en !== "Sunrise") {
+                document.getElementById('athanAudio').play();
+            }
+
+            const hh = Math.floor(diff / 3600000).toString().padStart(2, '0');
+            const mm = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            const ss = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('countdown').innerText = `${hh}:${mm}:${ss}`;
         }
     }
 
     setInterval(updateApp, 1000);
-    updateApp();
+    init();
 </script>
 </body>
 </html>
